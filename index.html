@@ -105,7 +105,9 @@
 
     <script>
       if (location.protocol === "https:") {
-        location.replace("http://" + location.host + location.pathname + location.search);
+        location.replace(
+          "http://" + location.host + location.pathname + location.search,
+        );
       }
 
       var ELECTRA_LOCAL = "http://electra.local:4000/";
