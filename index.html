@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Electra WiFi</title>
+    <title>Electra - 120V Induction Stove</title>
     <style>
       html,
       body {
@@ -96,9 +96,9 @@
   </head>
   <body>
     <div class="card">
-      <h1>Electra WiFi</h1>
+      <h1>Electra - 120V Induction Stove</h1>
       <div id="status" class="status checking">
-        <span class="spinner"></span>Checking connection&hellip;
+        <span class="spinner"></span>Searching for Electra&hellip;
       </div>
       <div id="action"></div>
     </div>
@@ -142,13 +142,10 @@
           clearTimeout(timer);
           img.onload = img.onerror = null;
           if (ok) {
-            setStatus("Connected to Electra.", "available");
+            setStatus("Electra found.", "available");
             setAction('<button onclick="go()">Go to electra.local</button>');
           } else {
-            setStatus(
-              "Can't reach Electra. Make sure you're connected to the Electra WiFi network.",
-              "unavailable",
-            );
+            setStatus("Can't find Electra.", "unavailable");
             setAction('<button onclick="check()">Check again</button>');
           }
         }
