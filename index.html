@@ -1,243 +1,166 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Electra — Network Check</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electra WiFi</title>
     <style>
-        @font-face {
-            font-family: 'Aeonik';
-            font-style: normal;
-            font-weight: 400;
-            src: url('http://electra.local/fonts/aeonik-regular-40410012b7c0758bc6dae7dbe86a2a7f.otf') format('opentype');
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background: #f4f6f8;
+        color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        box-sizing: border-box;
+      }
+      .card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 2rem 1.75rem;
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 1.25rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      .status {
+        margin: 0 0 1.25rem;
+        font-size: 1rem;
+        line-height: 1.4;
+        min-height: 2.8em;
+      }
+      .status.checking {
+        color: #555;
+      }
+      .status.available {
+        color: #0a7f2e;
+      }
+      .status.unavailable {
+        color: #b03a2e;
+      }
+      .spinner {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid #ccc;
+        border-top-color: #0066cc;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        vertical-align: -2px;
+        margin-right: 0.4em;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
-        @font-face {
-            font-family: 'Aeonik';
-            font-style: normal;
-            font-weight: 500;
-            src: url('http://electra.local/fonts/aeonik-medium-6331741a0f9ae198f91b1acd2b101171.otf') format('opentype');
-        }
-        @font-face {
-            font-family: 'Aeonik';
-            font-style: normal;
-            font-weight: 700;
-            src: url('http://electra.local/fonts/aeonik-bold-01967e23d3e4c57aef6bb415c151db8f.otf') format('opentype');
-        }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background-color: #494949;
-            color: white;
-            min-height: 100vh;
-            font-family: 'Aeonik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 24px;
-            gap: 24px;
-        }
-
-        .card {
-            background-color: #151515;
-            border-radius: 12px;
-            padding: 32px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .logo {
-            height: 37px;
-            margin-bottom: 24px;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid #474747;
-            border-top-color: #FFB300;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .result {
-            display: none;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .result.visible {
-            display: block;
-        }
-
-        .status-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 28px;
-        }
-
-        .status-icon.found {
-            background-color: rgba(226, 255, 0, 0.15);
-            color: #E2FF00;
-        }
-
-        .status-icon.not-found {
-            background-color: rgba(255, 179, 0, 0.15);
-            color: #FFB300;
-        }
-
-        .status-heading {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .status-subtitle {
-            font-size: 14px;
-            color: #787878;
-            line-height: 1.5;
-        }
-
-        .status-action {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 24px;
-            background-color: #FFB300;
-            color: #151515;
-            font-weight: 600;
-            font-size: 14px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: opacity 0.2s;
-        }
-
-        .status-action:hover {
-            opacity: 0.85;
-        }
-
-        .details {
-            margin-top: 16px;
-            font-size: 12px;
-            color: #969696;
-        }
+      }
+      button {
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        background: #0066cc;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 0.85rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.15s ease;
+      }
+      button:hover {
+        background: #0052a3;
+      }
+      button:active {
+        background: #004280;
+      }
+      button:disabled {
+        background: #aaa;
+        cursor: default;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="card">
-            <!-- Logo loaded from electra.local -->
-            <img class="logo"
-                 src="http://electra.local/images/logo_combined.svg"
-                 alt="Electra"
-                 onload="handleLogoLoaded()"
-                 onerror="handleLogoError()"
-                 style="opacity: 0; transition: opacity 0.3s;">
-
-            <!-- Loading spinner -->
-            <div id="spinner" class="spinner"></div>
-
-            <!-- Result: Found -->
-            <div id="result-found" class="result">
-                <div class="status-icon found">✓</div>
-                <div class="status-heading">Electra Stove Found</div>
-                <div class="status-subtitle">
-                    An Electra induction stove is<br>connected to your network.
-                </div>
-                <a href="http://electra.local" class="status-action" style="text-decoration: none;">
-                    Open Dashboard →
-                </a>
-            </div>
-
-            <!-- Result: Not Found -->
-            <div id="result-not-found" class="result">
-                <div class="status-icon not-found">!</div>
-                <div class="status-heading">No Electra Stove Found</div>
-                <div class="status-subtitle">
-                    No Electra induction stove was detected<br>on your local network.
-                </div>
-                <button class="status-action" onclick="checkAgain()">
-                    Check Again
-                </button>
-                <div class="details">
-                    Make sure your stove is powered on and connected to the same Wi-Fi network.
-                </div>
-            </div>
-        </div>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Electra WiFi</h1>
+      <div id="status" class="status checking">
+        <span class="spinner"></span>Checking connection&hellip;
+      </div>
+      <div id="action"></div>
     </div>
 
     <script>
-        // Timeout in case neither onload nor onerror fires
-        var checkTimeout = setTimeout(function() {
-            showResult('not-found');
-        }, 5000);
+      var ELECTRA_LOCAL = "http://electra.local:4000/";
+      var TIMEOUT_MS = 5000;
 
-        function handleLogoLoaded() {
-            clearTimeout(checkTimeout);
-            // Show the logo now that it loaded
-            var logo = document.querySelector('.logo');
-            logo.style.opacity = '1';
+      function setStatus(text, cls) {
+        var el = document.getElementById("status");
+        el.className = "status " + cls;
+        el.innerHTML = text;
+      }
 
-            // Double-check reachability via a timing request to the root
-            // (the logo loaded, which confirms electra.local resolves)
-            showResult('found');
+      function setAction(html) {
+        document.getElementById("action").innerHTML = html;
+      }
+
+      function check() {
+        setStatus(
+          '<span class="spinner"></span>Checking connection&hellip;',
+          "checking",
+        );
+        setAction("");
+
+        var done = false;
+        var img = new Image();
+        var timer = setTimeout(function () {
+          finish(false);
+        }, TIMEOUT_MS);
+
+        function finish(ok) {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          img.onload = img.onerror = null;
+          if (ok) {
+            setStatus("Connected to Electra.", "available");
+            setAction('<button onclick="go()">Go to electra.local</button>');
+          } else {
+            setStatus(
+              "Can't reach Electra. Make sure you're connected to the Electra WiFi network.",
+              "unavailable",
+            );
+            setAction('<button onclick="check()">Check again</button>');
+          }
         }
 
-        function handleLogoError() {
-            clearTimeout(checkTimeout);
-            showResult('not-found');
-        }
+        img.onload = function () {
+          finish(true);
+        };
+        img.onerror = function () {
+          finish(false);
+        };
+        img.src = ELECTRA_LOCAL + "favicon.ico?_=" + Date.now();
+      }
 
-        function showResult(which) {
-            document.getElementById('spinner').style.display = 'none';
+      function go() {
+        window.location.href = ELECTRA_LOCAL;
+      }
 
-            if (which === 'found') {
-                document.getElementById('result-found').classList.add('visible');
-            } else {
-                document.getElementById('result-not-found').classList.add('visible');
-                // Also hide the broken logo
-                document.querySelector('.logo').style.display = 'none';
-            }
-        }
-
-        function checkAgain() {
-            document.getElementById('result-not-found').classList.remove('visible');
-            document.getElementById('result-found').classList.remove('visible');
-            document.getElementById('spinner').style.display = 'block';
-            document.querySelector('.logo').style.opacity = '0';
-            document.querySelector('.logo').style.display = '';
-
-            // Reload the logo image with a cache-buster
-            var logo = document.querySelector('.logo');
-            logo.src = 'http://electra.local/images/logo_combined.svg?_=' + Date.now();
-
-            checkTimeout = setTimeout(function() {
-                showResult('not-found');
-            }, 5000);
-        }
+      check();
     </script>
-</body>
+  </body>
 </html>
