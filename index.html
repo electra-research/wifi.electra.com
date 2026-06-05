@@ -97,73 +97,7 @@
   <body>
     <div class="card">
       <h1>Electra - 120V Induction Stove</h1>
-      <div id="status" class="status checking">
-        <span class="spinner"></span>Searching for Electra&hellip;
-      </div>
-      <div id="action"></div>
+      <p>If you've set up WiFi on your stove, try visiting <a href="http://electra.local">electra.local</a></p>
     </div>
-
-    <script>
-      if (location.protocol === "https:") {
-        location.replace(
-          "http://" + location.host + location.pathname + location.search,
-        );
-      }
-
-      var ELECTRA_LOCAL = "http://electra.local/";
-      var TIMEOUT_MS = 5000;
-
-      function setStatus(text, cls) {
-        var el = document.getElementById("status");
-        el.className = "status " + cls;
-        el.innerHTML = text;
-      }
-
-      function setAction(html) {
-        document.getElementById("action").innerHTML = html;
-      }
-
-      function check() {
-        setStatus(
-          '<span class="spinner"></span>Checking connection&hellip;',
-          "checking",
-        );
-        setAction("");
-
-        var done = false;
-        var img = new Image();
-        var timer = setTimeout(function () {
-          finish(false);
-        }, TIMEOUT_MS);
-
-        function finish(ok) {
-          if (done) return;
-          done = true;
-          clearTimeout(timer);
-          img.onload = img.onerror = null;
-          if (ok) {
-            setStatus("Electra found.", "available");
-            setAction('<button onclick="go()">Go to electra.local</button>');
-          } else {
-            setStatus("Can't find Electra.", "unavailable");
-            setAction('<button onclick="check()">Check again</button>');
-          }
-        }
-
-        img.onload = function () {
-          finish(true);
-        };
-        img.onerror = function () {
-          finish(false);
-        };
-        img.src = ELECTRA_LOCAL + "favicon.ico?_=" + Date.now();
-      }
-
-      function go() {
-        window.location.href = ELECTRA_LOCAL;
-      }
-
-      check();
-    </script>
   </body>
 </html>
